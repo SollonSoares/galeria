@@ -1,7 +1,3 @@
-const fileInput = document.getElementById('fileInput');
-const uploadInput = document.getElementById('uploadInput');
-const sendUploadBtn = document.getElementById('sendUploadBtn');
-const uploadStatus = document.getElementById('uploadStatus');
 const track = document.getElementById('carouselTrack');
 const thumbnailsContainer = document.getElementById('thumbnailsContainer');
 const nextBtn = document.getElementById('nextBtn');
@@ -35,58 +31,30 @@ async function carregarImagensPadrao() {
 
 carregarImagensPadrao();
 
-fileInput.addEventListener('change', (e) => {
-    const files = Array.from(e.target.files);
-    if (files.length === 0) return;
-
-    const imageFiles = files.filter(file => file.type.startsWith('image/'));
-    if (imageFiles.length === 0) return;
-
-    imagens = imageFiles.map(file => {
-        const objectUrl = URL.createObjectURL(file);
-        return {
-            url: objectUrl,
-            alt: file.name
-        };
-    });
-
-    currentIndex = 0;
-    renderizarGaleria();
-});
-
-sendUploadBtn.addEventListener('click', async () => {
-    const file = uploadInput.files[0];
-    if (!file) {
-        uploadStatus.textContent = 'Selecione uma imagem primeiro.';
-        return;
-    }
-
-    const formData = new FormData();
-    formData.append('imagem', file);
-
-    uploadStatus.textContent = 'Enviando imagem...';
-
+async function carregarImagensPadrao() {
     try {
-        const response = await fetch('/upload', {
-            method: 'POST',
-            body: formData
-        });
-
+        const response = await fetch('/api/images');
         const result = await response.json();
 
-        if (!response.ok) {
-            throw new Error(result.error || 'Erro ao enviar a imagem.');
+        if (!Array.isArray(result.images) || result.images.length === 0) {
+            return;
         }
 
-        const imageUrl = `${window.location.origin}/uploads/${encodeURIComponent(result.filename)}`;
-        imagens = [{ url: imageUrl, alt: result.filename }];
+        imagens = result.images.map(fileName => ({
+            url: `${window.location.origin}/imagens/${encodeURIComponent(fileName)}`,
+            alt: fileName
+        }));
+
         currentIndex = 0;
         renderizarGaleria();
-        uploadStatus.textContent = `Imagem enviada com sucesso: ${result.filename}`;
     } catch (error) {
-        uploadStatus.textContent = error.message;
+        if (imageAddress) {
+            imageAddress.value = 'Não foi possível carregar as imagens da pasta do projeto.';
+        }
     }
-});
+}
+
+carregarImagensPadrao();
 
 function renderizarGaleria() {
     track.innerHTML = '';
