@@ -13,25 +13,20 @@ async function carregarImagensPadrao() {
         const response = await fetch('/api/images');
         const result = await response.json();
 
-        if (!Array.isArray(result.images) || result.images.length === 0) {
+        if (Array.isArray(result.images) && result.images.length > 0) {
+            imagens = result.images.map(fileName => ({
+                url: `${window.location.origin}/imagens/${encodeURIComponent(fileName)}`,
+                alt: fileName
+            }));
+
+            currentIndex = 0;
+            renderizarGaleria();
             return;
         }
-
-        imagens = result.images.map(fileName => ({
-            url: `${window.location.origin}/imagens/${encodeURIComponent(fileName)}`,
-            alt: fileName
-        }));
-
-        currentIndex = 0;
-        renderizarGaleria();
     } catch (error) {
-        uploadStatus.textContent = 'Não foi possível carregar as imagens da pasta do projeto.';
+        // fallback para o arquivo estático quando o backend não estiver disponível
     }
-}
 
-carregarImagensPadrao();
-
-async function carregarImagensPadrao() {
     try {
         const staticResponse = await fetch('images.json');
         const staticImages = await staticResponse.json();
@@ -41,29 +36,10 @@ async function carregarImagensPadrao() {
                 url: `${window.location.origin}/imagens/${encodeURIComponent(fileName)}`,
                 alt: fileName
             }));
+
             currentIndex = 0;
             renderizarGaleria();
-            return;
         }
-    } catch (error) {
-        // fallback para o backend local se o JSON estiver indisponível
-    }
-
-    try {
-        const response = await fetch('/api/images');
-        const result = await response.json();
-
-        if (!Array.isArray(result.images) || result.images.length === 0) {
-            return;
-        }
-
-        imagens = result.images.map(fileName => ({
-            url: `${window.location.origin}/imagens/${encodeURIComponent(fileName)}`,
-            alt: fileName
-        }));
-
-        currentIndex = 0;
-        renderizarGaleria();
     } catch (error) {
         if (imageAddress) {
             imageAddress.value = 'Não foi possível carregar as imagens da pasta do projeto.';
@@ -143,9 +119,9 @@ copyAddressBtn.addEventListener('click', async () => {
 
     try {
         await navigator.clipboard.writeText(imageAddress.value);
-        uploadStatus.textContent = 'Endereço copiado para a área de transferência.';
+        imageAddress.value = `${imageAddress.value} (copiado)`;
     } catch (error) {
-        uploadStatus.textContent = 'Não foi possível copiar automaticamente. Selecione o endereço manualmente.';
+        imageAddress.value = 'Não foi possível copiar automaticamente. Selecione o endereço manualmente.';
     }
 });
 
