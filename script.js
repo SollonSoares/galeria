@@ -9,7 +9,7 @@ let imagens = [];
 let currentIndex = 0;
 
 async function carregarImagensPadrao() {
-    const isLocalServer = /^https?:\/\/(127\.0\.0\.1|localhost)(?::\d+)?/i.test(window.location.origin);
+    const isLocalServer = ['localhost', '127.0.0.1'].includes(window.location.hostname);
 
     try {
         if (isLocalServer) {
