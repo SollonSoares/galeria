@@ -33,6 +33,23 @@ carregarImagensPadrao();
 
 async function carregarImagensPadrao() {
     try {
+        const staticResponse = await fetch('images.json');
+        const staticImages = await staticResponse.json();
+
+        if (Array.isArray(staticImages) && staticImages.length > 0) {
+            imagens = staticImages.map(fileName => ({
+                url: `${window.location.origin}/imagens/${encodeURIComponent(fileName)}`,
+                alt: fileName
+            }));
+            currentIndex = 0;
+            renderizarGaleria();
+            return;
+        }
+    } catch (error) {
+        // fallback para o backend local se o JSON estiver indisponível
+    }
+
+    try {
         const response = await fetch('/api/images');
         const result = await response.json();
 
