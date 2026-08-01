@@ -39,16 +39,17 @@ class GalleryHandler(SimpleHTTPRequestHandler):
         self.send_error(404, "Not found")
 
     def _handle_list_images(self) -> None:
-        images_dir = ROOT_DIR / "imagens"
-        if not images_dir.exists():
-            self._send_json(200, {"images": []})
-            return
+        supported_extensions = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp", ".svg", ".avif"}
 
-        supported_extensions = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp"}
-        images = sorted(
-            file.name for file in images_dir.iterdir()
-            if file.is_file() and file.suffix.lower() in supported_extensions
-        )
+        images: list[str] = []
+        for images_dir in (ROOT_DIR / "imagens", UPLOAD_DIR):
+            if images_dir.exists():
+                images.extend(
+                    file.name for file in images_dir.iterdir()
+                    if file.is_file() and file.suffix.lower() in supported_extensions
+                )
+
+        images = sorted(set(images))
         self._send_json(200, {"images": images})
 
     def _handle_upload(self) -> None:
