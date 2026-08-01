@@ -9,13 +9,15 @@ let imagens = [];
 let currentIndex = 0;
 
 async function carregarImagensPadrao() {
-    try {
-        const response = await fetch('/api/images');
-        const result = await response.json();
+    const projectBase = new URL('.', window.location.href).pathname;
 
-        if (Array.isArray(result.images) && result.images.length > 0) {
-            imagens = result.images.map(fileName => ({
-                url: `${window.location.origin}/imagens/${encodeURIComponent(fileName)}`,
+    try {
+        const staticResponse = await fetch(`${projectBase}images.json`);
+        const staticImages = await staticResponse.json();
+
+        if (Array.isArray(staticImages) && staticImages.length > 0) {
+            imagens = staticImages.map(fileName => ({
+                url: `${window.location.origin}${projectBase}imagens/${encodeURIComponent(fileName)}`,
                 alt: fileName
             }));
 
@@ -24,16 +26,16 @@ async function carregarImagensPadrao() {
             return;
         }
     } catch (error) {
-        // fallback para o arquivo estático quando o backend não estiver disponível
+        // fallback para o backend local se o arquivo estático não estiver disponível
     }
 
     try {
-        const staticResponse = await fetch('images.json');
-        const staticImages = await staticResponse.json();
+        const response = await fetch(`${projectBase}api/images`);
+        const result = await response.json();
 
-        if (Array.isArray(staticImages) && staticImages.length > 0) {
-            imagens = staticImages.map(fileName => ({
-                url: `${window.location.origin}/imagens/${encodeURIComponent(fileName)}`,
+        if (Array.isArray(result.images) && result.images.length > 0) {
+            imagens = result.images.map(fileName => ({
+                url: `${window.location.origin}${projectBase}imagens/${encodeURIComponent(fileName)}`,
                 alt: fileName
             }));
 
