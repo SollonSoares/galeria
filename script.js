@@ -26,23 +26,6 @@ async function carregarImagensPadrao() {
             return;
         }
     } catch (error) {
-        // fallback para o backend local se o arquivo estático não estiver disponível
-    }
-
-    try {
-        const response = await fetch(`${projectBase}api/images`);
-        const result = await response.json();
-
-        if (Array.isArray(result.images) && result.images.length > 0) {
-            imagens = result.images.map(fileName => ({
-                url: `${window.location.origin}${projectBase}imagens/${encodeURIComponent(fileName)}`,
-                alt: fileName
-            }));
-
-            currentIndex = 0;
-            renderizarGaleria();
-        }
-    } catch (error) {
         if (imageAddress) {
             imageAddress.value = 'Não foi possível carregar as imagens da pasta do projeto.';
         }
