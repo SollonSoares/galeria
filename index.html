@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galeria de Imagens Dinâmica</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <main class="gallery-container">
+        <h1>Galeria de Imagens</h1>
+        
+        <!-- Botão para carregar a pasta/imagens automaticamente -->
+        <div class="upload-section">
+            <label for="fileInput" class="upload-btn">Selecionar Imagens da Pasta</label>
+            <input type="file" id="fileInput" multiple accept="image/*">
+        </div>
+
+        <!-- Carrossel Principal -->
+        <div class="carousel">
+            <button class="carousel-btn prev" id="prevBtn">&#10094;</button>
+            <div class="carousel-track-container">
+                <div class="carousel-track" id="carouselTrack">
+                    <div class="carousel-slide placeholder-slide">
+                        <p>Nenhuma imagem selecionada</p>
+                    </div>
+                </div>
+            </div>
+            <button class="carousel-btn next" id="nextBtn">&#10095;</button>
+        </div>
+
+        <!-- Miniaturas (Thumbs) -->
+        <div class="thumbnails-container" id="thumbnailsContainer">
+            <!-- Inserido via JS -->
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
