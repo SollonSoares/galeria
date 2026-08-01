@@ -10,7 +10,7 @@ let currentIndex = 0;
 
 async function carregarImagensPadrao() {
     try {
-        const apiResponse = await fetch('/api/images', { cache: 'no-store' });
+        const apiResponse = await fetch('./api/images', { cache: 'no-store' });
 
         if (!apiResponse.ok) {
             throw new Error(`Falha ao consultar a API de imagens: ${apiResponse.status}`);
@@ -19,44 +19,21 @@ async function carregarImagensPadrao() {
         const apiData = await apiResponse.json();
         const files = Array.isArray(apiData.images)
             ? apiData.images
-            : Array.isArray(apiData)
-                ? apiData
-                : [];
+            : [];
 
-        if (files.length > 0) {
-            imagens = files.map(fileName => ({
-                url: new URL(`./imagens/${encodeURIComponent(fileName)}`, window.location.href).toString(),
-                alt: fileName
-            }));
+        imagens = files.map(fileName => ({
+            url: new URL(`./imagens/${encodeURIComponent(fileName)}`, window.location.href).toString(),
+            alt: fileName
+        }));
 
-            currentIndex = 0;
-            renderizarGaleria();
-            return;
-        }
-
-        throw new Error('A lista retornada pela API está vazia.');
+        currentIndex = 0;
+        renderizarGaleria();
     } catch (error) {
-        try {
-            const staticResponse = await fetch('./images.json', { cache: 'no-store' });
-            if (!staticResponse.ok) {
-                throw new Error(`Falha ao carregar images.json: ${staticResponse.status}`);
-            }
+        imagens = [];
+        renderizarGaleria();
 
-            const staticImages = await staticResponse.json();
-            if (Array.isArray(staticImages) && staticImages.length > 0) {
-                imagens = staticImages.map(fileName => ({
-                    url: new URL(`./imagens/${encodeURIComponent(fileName)}`, window.location.href).toString(),
-                    alt: fileName
-                }));
-
-                currentIndex = 0;
-                renderizarGaleria();
-                return;
-            }
-        } catch (fallbackError) {
-            if (imageAddress) {
-                imageAddress.value = 'Não foi possível carregar as imagens da pasta do projeto.';
-            }
+        if (imageAddress) {
+            imageAddress.value = 'Nenhuma imagem encontrada na pasta.';
         }
     }
 }
