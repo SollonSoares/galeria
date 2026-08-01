@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Galeria de Imagens Dinâmica</title>
+    <title>Galeria de Imagens</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -11,13 +11,18 @@
     <main class="gallery-container">
         <h1>Galeria de Imagens</h1>
         
-        <!-- Botão para carregar a pasta/imagens automaticamente -->
         <div class="upload-section">
-            <label for="fileInput" class="upload-btn">Selecionar Imagens da Pasta</label>
-            <input type="file" id="fileInput" multiple accept="image/*">
+            <label for="fileInput" class="upload-btn">Selecionar Pasta com Imagens</label>
+            <input type="file" id="fileInput" multiple accept="image/*" webkitdirectory directory>
         </div>
 
-        <!-- Carrossel Principal -->
+        <div class="upload-section">
+            <label for="uploadInput" class="upload-btn">Enviar Imagem para Pasta Externa</label>
+            <input type="file" id="uploadInput" accept="image/*">
+            <button type="button" id="sendUploadBtn" class="upload-btn">Enviar</button>
+            <p id="uploadStatus" class="upload-status">Nenhuma imagem enviada.</p>
+        </div>
+
         <div class="carousel">
             <button class="carousel-btn prev" id="prevBtn">&#10094;</button>
             <div class="carousel-track-container">
@@ -30,10 +35,13 @@
             <button class="carousel-btn next" id="nextBtn">&#10095;</button>
         </div>
 
-        <!-- Miniaturas (Thumbs) -->
-        <div class="thumbnails-container" id="thumbnailsContainer">
-            <!-- Inserido via JS -->
+        <div class="address-section">
+            <label for="imageAddress">Endereço da imagem atual</label>
+            <input type="text" id="imageAddress" readonly>
+            <button type="button" id="copyAddressBtn" class="upload-btn">Copiar endereço</button>
         </div>
+
+        <div class="thumbnails-container" id="thumbnailsContainer"></div>
     </main>
 
     <script src="script.js"></script>
