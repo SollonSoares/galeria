@@ -9,15 +9,18 @@ let imagens = [];
 let currentIndex = 0;
 
 async function carregarImagensPadrao() {
-    const projectBase = new URL('.', window.location.href).pathname;
-
     try {
-        const staticResponse = await fetch(`${projectBase}images.json`);
+        const staticResponse = await fetch('./images.json', { cache: 'no-store' });
+
+        if (!staticResponse.ok) {
+            throw new Error(`Falha ao carregar images.json: ${staticResponse.status}`);
+        }
+
         const staticImages = await staticResponse.json();
 
         if (Array.isArray(staticImages) && staticImages.length > 0) {
             imagens = staticImages.map(fileName => ({
-                url: `${window.location.origin}${projectBase}imagens/${encodeURIComponent(fileName)}`,
+                url: new URL(`./imagens/${encodeURIComponent(fileName)}`, window.location.href).toString(),
                 alt: fileName
             }));
 
@@ -25,6 +28,8 @@ async function carregarImagensPadrao() {
             renderizarGaleria();
             return;
         }
+
+        throw new Error('A lista de imagens está vazia.');
     } catch (error) {
         if (imageAddress) {
             imageAddress.value = 'Não foi possível carregar as imagens da pasta do projeto.';
