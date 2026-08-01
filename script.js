@@ -9,19 +9,42 @@ let imagens = [];
 let currentIndex = 0;
 
 async function carregarImagensPadrao() {
-    try {
-        const apiResponse = await fetch('./api/images', { cache: 'no-store' });
+    const isLocalServer = /^https?:\/\/(127\.0\.0\.1|localhost)(?::\d+)?/i.test(window.location.origin);
 
-        if (!apiResponse.ok) {
-            throw new Error(`Falha ao consultar a API de imagens: ${apiResponse.status}`);
+    try {
+        if (isLocalServer) {
+            const apiResponse = await fetch('/api/images', { cache: 'no-store' });
+
+            if (!apiResponse.ok) {
+                throw new Error(`Falha ao consultar a API de imagens: ${apiResponse.status}`);
+            }
+
+            const apiData = await apiResponse.json();
+            const files = Array.isArray(apiData.images)
+                ? apiData.images
+                : [];
+
+            imagens = files.map(fileName => ({
+                url: new URL(`./imagens/${encodeURIComponent(fileName)}`, window.location.href).toString(),
+                alt: fileName
+            }));
+
+            currentIndex = 0;
+            renderizarGaleria();
+            return;
         }
 
-        const apiData = await apiResponse.json();
-        const files = Array.isArray(apiData.images)
-            ? apiData.images
-            : [];
+        const staticResponse = await fetch('./images.json', { cache: 'no-store' });
+        if (!staticResponse.ok) {
+            throw new Error(`Falha ao carregar images.json: ${staticResponse.status}`);
+        }
 
-        imagens = files.map(fileName => ({
+        const staticImages = await staticResponse.json();
+        if (!Array.isArray(staticImages) || staticImages.length === 0) {
+            throw new Error('A lista estática está vazia.');
+        }
+
+        imagens = staticImages.map(fileName => ({
             url: new URL(`./imagens/${encodeURIComponent(fileName)}`, window.location.href).toString(),
             alt: fileName
         }));
