@@ -9,101 +9,61 @@ let imagens = [];
 let currentIndex = 0;
 let refreshIntervalId = null;
 
-function normalizarImagem(file) {
-    if (typeof file === 'string') {
-        return {
-            url: `./imagens/${encodeURIComponent(file)}`,
-            alt: file
-        };
-    }
-
-    if (file && typeof file === 'object') {
-        const fileName = file.filename || file.name || file.alt || '';
-        const imageUrl = file.url || `./imagens/${encodeURIComponent(fileName)}`;
-
-        return {
-            url: imageUrl,
-            alt: fileName || 'Imagem'
-        };
-    }
-
-    return {
-        url: '',
-        alt: 'Imagem'
-    };
-}
-
-async function carregarImagensPadrao() {
+async function carregarImagens() {
     try {
-        const staticResponse = await fetch('./images.json', { cache: 'no-store' });
-        if (!staticResponse.ok) {
-            throw new Error(`Falha ao carregar images.json: ${staticResponse.status}`);
+        const response = await fetch('/api/images', { cache: 'no-store' });
+        if (!response.ok) {
+            throw new Error(`Falha ao carregar imagens: ${response.status}`);
         }
 
-        const staticImages = await staticResponse.json();
-        if (!Array.isArray(staticImages) || staticImages.length === 0) {
-            throw new Error('A lista estática está vazia.');
-        }
-
-        imagens = staticImages.map(normalizarImagem);
-
+        const data = await response.json();
+        imagens = Array.isArray(data) ? data : [];
         currentIndex = 0;
         renderizarGaleria();
     } catch (error) {
         imagens = [];
         renderizarGaleria();
-
         if (imageAddress) {
             imageAddress.value = 'Nenhuma imagem encontrada na pasta.';
         }
     }
 }
 
-carregarImagensPadrao();
-
-function iniciarAtualizacaoAutomatica() {
-    if (refreshIntervalId) {
-        clearInterval(refreshIntervalId);
-    }
-
-    refreshIntervalId = setInterval(async () => {
-        await carregarImagensPadrao();
-    }, 3000);
-}
-
-iniciarAtualizacaoAutomatica();
-
 function renderizarGaleria() {
     track.innerHTML = '';
     thumbnailsContainer.innerHTML = '';
 
+    if (imagens.length === 0) {
+        const placeholder = document.createElement('div');
+        placeholder.className = 'carousel-slide';
+        placeholder.innerHTML = '<p>Nenhuma imagem encontrada na pasta.</p>';
+        track.appendChild(placeholder);
+        return;
+    }
+
     imagens.forEach((img, index) => {
         const slide = document.createElement('div');
-        slide.classList.add('carousel-slide');
-        if (index === 0) slide.classList.add('current-slide');
+        slide.className = 'carousel-slide';
 
         const link = document.createElement('a');
         link.href = img.url;
-        link.target = "_blank";
+        link.target = '_blank';
 
         const image = document.createElement('img');
         image.src = img.url;
-        image.alt = img.alt;
-        
+        image.alt = img.name;
+
         link.appendChild(image);
         slide.appendChild(link);
         track.appendChild(slide);
 
         const thumb = document.createElement('img');
         thumb.src = img.url;
-        thumb.alt = img.alt;
-        thumb.classList.add('thumbnail');
+        thumb.alt = img.name;
+        thumb.className = 'thumbnail';
         if (index === 0) thumb.classList.add('active');
 
-        thumb.addEventListener('click', () => {
-            moveToSlide(index);
-        });
-
+        thumb.addEventListener('click', () => moveToSlide(index));
         thumbnailsContainer.appendChild(thumb);
     });
 
@@ -113,24 +73,15 @@ function renderizarGaleria() {
 function moveToSlide(targetIndex) {
     if (imagens.length === 0) return;
 
-    if (targetIndex < 0) {
-        targetIndex = imagens.length - 1;
-    } else if (targetIndex >= imagens.length) {
-        targetIndex = 0;
-    }
+    if (targetIndex < 0) targetIndex = imagens.length - 1;
+    if (targetIndex >= imagens.length) targetIndex = 0;
 
     currentIndex = targetIndex;
     const amountToMove = -currentIndex * 100;
     track.style.transform = `translateX(${amountToMove}%)`;
 
-    const thumbs = document.querySelectorAll('.thumbnail');
-    thumbs.forEach((thumb, idx) => {
-        if (idx === currentIndex) {
-            thumb.classList.add('active');
-            thumb.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
-        } else {
-            thumb.classList.remove('active');
-        }
+    document.querySelectorAll('.thumbnail').forEach((thumb, idx) => {
+        thumb.classList.toggle('active', idx === currentIndex);
     });
 
     if (imageAddress) {
@@ -140,7 +91,6 @@ function moveToSlide(targetIndex) {
 
 copyAddressBtn.addEventListener('click', async () => {
     if (!imageAddress.value) return;
-
     try {
         await navigator.clipboard.writeText(imageAddress.value);
         imageAddress.value = `${imageAddress.value} (copiado)`;
@@ -149,32 +99,23 @@ copyAddressBtn.addEventListener('click', async () => {
     }
 });
 
-nextBtn.addEventListener('click', () => {
-    moveToSlide(currentIndex + 1);
-});
-
-prevBtn.addEventListener('click', () => {
-    moveToSlide(currentIndex - 1);
-});
+nextBtn.addEventListener('click', () => moveToSlide(currentIndex + 1));
+prevBtn.addEventListener('click', () => moveToSlide(currentIndex - 1));
 
 let touchStartX = 0;
 let touchEndX = 0;
 
-track.addEventListener('touchstart', (e) => {
-    touchStartX = e.changedTouches[0].screenX;
+track.addEventListener('touchstart', (event) => {
+    touchStartX = event.changedTouches[0].screenX;
 });
 
-track.addEventListener('touchend', (e) => {
-    touchEndX = e.changedTouches[0].screenX;
-    handleGesture();
+track.addEventListener('touchend', (event) => {
+    touchEndX = event.changedTouches[0].screenX;
+    const threshold = 50;
+    if (touchEndX < touchStartX - threshold) moveToSlide(currentIndex + 1);
+    if (touchEndX > touchStartX + threshold) moveToSlide(currentIndex - 1);
 });
 
-function handleGesture() {
-    const threshold = 50; 
-    if (touchEndX < touchStartX - threshold) {
-        moveToSlide(currentIndex + 1); 
-    }
-    if (touchEndX > touchStartX + threshold) {
-        moveToSlide(currentIndex - 1); 
-    }
-}
+carregarImagens();
+if (refreshIntervalId) clearInterval(refreshIntervalId);
+refreshIntervalId = setInterval(carregarImagens, 3000);
