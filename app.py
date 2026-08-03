@@ -93,7 +93,7 @@ class GalleryHandler(BaseHTTPRequestHandler):
                 if file_path.is_file() and file_path.suffix.lower() in SUPPORTED_EXTENSIONS:
                     images.append({
                         "name": file_path.name,
-                        "url": f"/imagens/{quote(file_path.name)}"
+                        "url": f"https://sollonsoares.github.io/galeria/imagens/{quote(file_path.name)}"
                     })
 
         payload = json.dumps({"images": images}).encode("utf-8")

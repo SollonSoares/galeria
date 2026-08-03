@@ -25,13 +25,13 @@ async function carregarImagens() {
             if (typeof item === 'string') {
                 return {
                     name: item,
-                    url: `/imagens/${encodeURIComponent(item)}`
+                    url: `https://sollonsoares.github.io/galeria/imagens/${encodeURIComponent(item)}`
                 };
             }
 
             const name = item?.name || item?.filename || item?.alt || '';
-            const url = item?.url || `/imagens/${encodeURIComponent(name)}`;
-            return { name, url: url.startsWith('http') ? url : `/imagens/${encodeURIComponent(name)}` };
+            const url = item?.url || `https://sollonsoares.github.io/galeria/imagens/${encodeURIComponent(name)}`;
+            return { name, url: url.startsWith('http') ? url : `https://sollonsoares.github.io/galeria/imagens/${encodeURIComponent(name)}` };
         });
 
         currentIndex = 0;
