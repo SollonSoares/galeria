@@ -11,28 +11,22 @@ let refreshIntervalId = null;
 
 async function carregarImagens() {
     try {
-        const response = await fetch('/api/images', { cache: 'no-store' });
-        if (!response.ok) {
-            throw new Error(`Falha ao carregar imagens: ${response.status}`);
-        }
+        const imageFiles = [
+            '001.jpeg',
+            '002.jpeg',
+            '003.jpeg',
+            '004.jpeg',
+            '005.jpeg',
+            '006.jpeg',
+            '007.jpeg',
+            'Gemini_Generated_Image_cr65drcr65drcr65.png',
+            'haghart.png'
+        ];
 
-        const payload = await response.json();
-        const rawImages = Array.isArray(payload)
-            ? payload
-            : (payload && Array.isArray(payload.images) ? payload.images : []);
-
-        imagens = rawImages.map((item) => {
-            if (typeof item === 'string') {
-                return {
-                    name: item,
-                    url: `https://sollonsoares.github.io/galeria/imagens/${encodeURIComponent(item)}`
-                };
-            }
-
-            const name = item?.name || item?.filename || item?.alt || '';
-            const url = item?.url || `https://sollonsoares.github.io/galeria/imagens/${encodeURIComponent(name)}`;
-            return { name, url: url.startsWith('http') ? url : `https://sollonsoares.github.io/galeria/imagens/${encodeURIComponent(name)}` };
-        });
+        imagens = imageFiles.map((name) => ({
+            name,
+            url: `https://sollonsoares.github.io/galeria/imagens/${encodeURIComponent(name)}`
+        }));
 
         currentIndex = 0;
         renderizarGaleria();
