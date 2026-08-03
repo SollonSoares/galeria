@@ -31,7 +31,7 @@ async function carregarImagens() {
 
             const name = item?.name || item?.filename || item?.alt || '';
             const url = item?.url || `/imagens/${encodeURIComponent(name)}`;
-            return { name, url };
+            return { name, url: url.startsWith('http') ? url : `/imagens/${encodeURIComponent(name)}` };
         });
 
         currentIndex = 0;
@@ -66,7 +66,7 @@ function renderizarGaleria() {
         link.target = '_blank';
 
         const image = document.createElement('img');
-        image.src = img.url;
+        image.src = img.url + `?v=${Date.now()}`;
         image.alt = img.name;
 
         link.appendChild(image);
@@ -74,7 +74,7 @@ function renderizarGaleria() {
         track.appendChild(slide);
 
         const thumb = document.createElement('img');
-        thumb.src = img.url;
+        thumb.src = img.url + `?v=${Date.now()}`;
         thumb.alt = img.name;
         thumb.className = 'thumbnail';
         if (index === 0) thumb.classList.add('active');
