@@ -7,6 +7,7 @@ const copyAddressBtn = document.getElementById('copyAddressBtn');
 
 let imagens = [];
 let currentIndex = 0;
+let refreshIntervalId = null;
 
 async function carregarImagensPadrao() {
     const isLocalServer = ['localhost', '127.0.0.1'].includes(window.location.hostname);
@@ -62,6 +63,18 @@ async function carregarImagensPadrao() {
 }
 
 carregarImagensPadrao();
+
+function iniciarAtualizacaoAutomatica() {
+    if (refreshIntervalId) {
+        clearInterval(refreshIntervalId);
+    }
+
+    refreshIntervalId = setInterval(async () => {
+        await carregarImagensPadrao();
+    }, 3000);
+}
+
+iniciarAtualizacaoAutomatica();
 
 function renderizarGaleria() {
     track.innerHTML = '';
