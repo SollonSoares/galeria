@@ -127,5 +127,3 @@ track.addEventListener('touchend', (event) => {
 });
 
 carregarImagens();
-if (refreshIntervalId) clearInterval(refreshIntervalId);
-refreshIntervalId = setInterval(carregarImagens, 3000);
