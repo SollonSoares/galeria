@@ -6,7 +6,9 @@ from email.parser import BytesParser
 from email.policy import default
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from urllib.parse import unquote
+from urllib.parse import quote, unquote
+
+from generate_images_manifest import build_manifest
 
 ROOT_DIR = Path(__file__).resolve().parent
 UPLOAD_DIR = (ROOT_DIR.parent / "uploads").resolve()
@@ -39,17 +41,20 @@ class GalleryHandler(SimpleHTTPRequestHandler):
         self.send_error(404, "Not found")
 
     def _handle_list_images(self) -> None:
+        build_manifest(ROOT_DIR / "imagens", ROOT_DIR / "images.json")
+
         supported_extensions = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp", ".svg", ".avif"}
 
-        images: list[str] = []
+        images: list[dict[str, str]] = []
         for images_dir in (ROOT_DIR / "imagens", UPLOAD_DIR):
             if images_dir.exists():
-                images.extend(
-                    file.name for file in images_dir.iterdir()
-                    if file.is_file() and file.suffix.lower() in supported_extensions
-                )
+                for file in images_dir.iterdir():
+                    if file.is_file() and file.suffix.lower() in supported_extensions:
+                        relative_dir = "imagens" if images_dir == (ROOT_DIR / "imagens") else "uploads"
+                        url_path = f"/{relative_dir}/{quote(file.name)}"
+                        images.append({"filename": file.name, "url": url_path})
 
-        images = sorted(set(images))
+        images = sorted(images, key=lambda item: item["filename"].lower())
         self._send_json(200, {"images": images})
 
     def _handle_upload(self) -> None:

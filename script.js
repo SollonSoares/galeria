@@ -9,6 +9,30 @@ let imagens = [];
 let currentIndex = 0;
 let refreshIntervalId = null;
 
+function normalizarImagem(file) {
+    if (typeof file === 'string') {
+        return {
+            url: new URL(`./imagens/${encodeURIComponent(file)}`, window.location.href).toString(),
+            alt: file
+        };
+    }
+
+    if (file && typeof file === 'object') {
+        const fileName = file.filename || file.name || file.alt || '';
+        const imageUrl = file.url || `./imagens/${encodeURIComponent(fileName)}`;
+
+        return {
+            url: new URL(imageUrl, window.location.href).toString(),
+            alt: fileName || 'Imagem'
+        };
+    }
+
+    return {
+        url: '',
+        alt: 'Imagem'
+    };
+}
+
 async function carregarImagensPadrao() {
     const isLocalServer = ['localhost', '127.0.0.1'].includes(window.location.hostname);
 
@@ -25,10 +49,7 @@ async function carregarImagensPadrao() {
                 ? apiData.images
                 : [];
 
-            imagens = files.map(fileName => ({
-                url: new URL(`./imagens/${encodeURIComponent(fileName)}`, window.location.href).toString(),
-                alt: fileName
-            }));
+            imagens = files.map(normalizarImagem);
 
             currentIndex = 0;
             renderizarGaleria();
@@ -45,10 +66,7 @@ async function carregarImagensPadrao() {
             throw new Error('A lista estática está vazia.');
         }
 
-        imagens = staticImages.map(fileName => ({
-            url: new URL(`./imagens/${encodeURIComponent(fileName)}`, window.location.href).toString(),
-            alt: fileName
-        }));
+        imagens = staticImages.map(normalizarImagem);
 
         currentIndex = 0;
         renderizarGaleria();
