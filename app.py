@@ -62,7 +62,24 @@ class GalleryHandler(BaseHTTPRequestHandler):
             return
 
         content = file_path.read_bytes()
-        mime_type = "image/jpeg" if file_path.suffix.lower() in {".jpg", ".jpeg"} else "image/png" if file_path.suffix.lower() == ".png" else "image/gif" if file_path.suffix.lower() == ".gif" else "image/webp" if file_path.suffix.lower() == ".webp" else "image/bmp" if file_path.suffix.lower() == ".bmp" else "image/svg+xml" if file_path.suffix.lower() == ".svg" else "image/avif" if file_path.suffix.lower() == ".avif" else "application/octet-stream"
+        suffix = file_path.suffix.lower()
+        if suffix in {".jpg", ".jpeg"}:
+            mime_type = "image/jpeg"
+        elif suffix == ".png":
+            mime_type = "image/png"
+        elif suffix == ".gif":
+            mime_type = "image/gif"
+        elif suffix == ".webp":
+            mime_type = "image/webp"
+        elif suffix == ".bmp":
+            mime_type = "image/bmp"
+        elif suffix == ".svg":
+            mime_type = "image/svg+xml"
+        elif suffix == ".avif":
+            mime_type = "image/avif"
+        else:
+            mime_type = "application/octet-stream"
+
         self.send_response(200)
         self.send_header("Content-Type", mime_type)
         self.send_header("Content-Length", str(len(content)))
