@@ -12,7 +12,7 @@ let refreshIntervalId = null;
 function normalizarImagem(file) {
     if (typeof file === 'string') {
         return {
-            url: new URL(`./imagens/${encodeURIComponent(file)}`, window.location.href).toString(),
+            url: `./imagens/${encodeURIComponent(file)}`,
             alt: file
         };
     }
@@ -22,7 +22,7 @@ function normalizarImagem(file) {
         const imageUrl = file.url || `./imagens/${encodeURIComponent(fileName)}`;
 
         return {
-            url: new URL(imageUrl, window.location.href).toString(),
+            url: imageUrl,
             alt: fileName || 'Imagem'
         };
     }
@@ -34,28 +34,7 @@ function normalizarImagem(file) {
 }
 
 async function carregarImagensPadrao() {
-    const isLocalServer = ['localhost', '127.0.0.1'].includes(window.location.hostname);
-
     try {
-        if (isLocalServer) {
-            const apiResponse = await fetch('/api/images', { cache: 'no-store' });
-
-            if (!apiResponse.ok) {
-                throw new Error(`Falha ao consultar a API de imagens: ${apiResponse.status}`);
-            }
-
-            const apiData = await apiResponse.json();
-            const files = Array.isArray(apiData.images)
-                ? apiData.images
-                : [];
-
-            imagens = files.map(normalizarImagem);
-
-            currentIndex = 0;
-            renderizarGaleria();
-            return;
-        }
-
         const staticResponse = await fetch('./images.json', { cache: 'no-store' });
         if (!staticResponse.ok) {
             throw new Error(`Falha ao carregar images.json: ${staticResponse.status}`);
