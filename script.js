@@ -7,7 +7,7 @@ const copyAddressBtn = document.getElementById('copyAddressBtn');
 
 let imagens = [];
 let currentIndex = 0;
-let refreshIntervalId = null;
+const baseImageUrl = 'https://sollonsoares.github.io/galeria/imagens';
 
 async function carregarImagens() {
     try {
@@ -25,7 +25,7 @@ async function carregarImagens() {
 
         imagens = imageFiles.map((name) => ({
             name,
-            url: `https://sollonsoares.github.io/galeria/imagens/${encodeURIComponent(name)}`
+            url: `${baseImageUrl}/${encodeURIComponent(name)}`
         }));
 
         currentIndex = 0;
@@ -60,7 +60,7 @@ function renderizarGaleria() {
         link.target = '_blank';
 
         const image = document.createElement('img');
-        image.src = img.url + `?v=${Date.now()}`;
+        image.src = img.url;
         image.alt = img.name;
 
         link.appendChild(image);
@@ -68,7 +68,7 @@ function renderizarGaleria() {
         track.appendChild(slide);
 
         const thumb = document.createElement('img');
-        thumb.src = img.url + `?v=${Date.now()}`;
+        thumb.src = img.url;
         thumb.alt = img.name;
         thumb.className = 'thumbnail';
         if (index === 0) thumb.classList.add('active');
