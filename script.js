@@ -16,8 +16,24 @@ async function carregarImagens() {
             throw new Error(`Falha ao carregar imagens: ${response.status}`);
         }
 
-        const data = await response.json();
-        imagens = Array.isArray(data) ? data : [];
+        const payload = await response.json();
+        const rawImages = Array.isArray(payload)
+            ? payload
+            : (payload && Array.isArray(payload.images) ? payload.images : []);
+
+        imagens = rawImages.map((item) => {
+            if (typeof item === 'string') {
+                return {
+                    name: item,
+                    url: `/imagens/${encodeURIComponent(item)}`
+                };
+            }
+
+            const name = item?.name || item?.filename || item?.alt || '';
+            const url = item?.url || `/imagens/${encodeURIComponent(name)}`;
+            return { name, url };
+        });
+
         currentIndex = 0;
         renderizarGaleria();
     } catch (error) {
